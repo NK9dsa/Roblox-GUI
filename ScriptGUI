@@ -1,0 +1,76 @@
+-- โหลด Kavo UI Library
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+
+-- สร้างหน้าต่างหลัก (ซ่อน GUI ได้)
+local Window = Library.CreateLib("Auto Egg Opener", "DarkTheme")
+
+-- สร้างแท็บหลัก
+local MainTab = Window:NewTab("Main")
+local MainSection = MainTab:NewSection("Controls")
+
+-- ตัวแปรควบคุมลูป
+local isRunning = false
+
+-- สร้าง Toggle Switch
+MainSection:NewToggle("Auto Open Eggs", "เปิด/ปิดการเปิดไข่อัตโนมัติ", function(state)
+    isRunning = state
+    if isRunning then
+        while isRunning do
+            local args = {
+                [1] = "PurchaseHatchEgg",
+                [2] = "39700045-671c-4c27-85c7-b4c810f19077",
+                [3] = "M7_Egg1",
+                [4] = "Eggs"
+            }
+            game:GetService("ReplicatedStorage").Postie.Sent:FireServer(unpack(args))
+            wait(1) -- ป้องกันการส่งคำขอถี่เกินไป
+        end
+    end
+end)
+
+-- แท็บ Settings สำหรับปุ่มซ่อน GUI
+local SettingsTab = Window:NewTab("Settings")
+local SettingsSection = SettingsTab:NewSection("UI Settings")
+
+-- ปุ่มซ่อน GUI
+SettingsSection:NewButton("Toggle UI", "ซ่อนหรือแสดง UI", function()
+    local gui = game.CoreGui:FindFirstChild("Auto Egg Opener")
+    if gui then
+        gui.Enabled = not gui.Enabled
+    end
+end)
+
+-- ไอคอนแสดง/ซ่อน GUI
+local icon = Instance.new("ImageButton")
+icon.Parent = game.CoreGui
+icon.Size = UDim2.new(0, 50, 0, 50)
+icon.Position = UDim2.new(0, 10, 0.9, 0)
+icon.Image = "rbxassetid://3926305904" -- เปลี่ยนเป็นไอคอนที่ต้องการ
+icon.BackgroundTransparency = 1
+
+icon.MouseButton1Click:Connect(function()
+    local gui = game.CoreGui:FindFirstChild("Auto Egg Opener")
+    if gui then
+        gui.Enabled = not gui.Enabled
+    end
+end)
+
+-- เพิ่มแท็บ Remote Spy
+local RemoteSpyTab = Window:NewTab("Remote Spy")
+local RemoteSpySection = RemoteSpyTab:NewSection("Spy Tools")
+RemoteSpySection:NewButton("Load Remote Spy", "โหลดเครื่องมือสอดแนม Remote Events", function()
+    loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/SimpleSpy.lua"))()
+end)
+
+-- เพิ่มแท็บซ่อนการสุ่มไข่
+local HideEggTab = Window:NewTab("Egg Hatching")
+local HideEggSection = HideEggTab:NewSection("Hide Egg Animation")
+HideEggSection:NewToggle("Hide Egg Hatching", "ซ่อน/แสดงอนิเมชั่นการสุ่มไข่", function(state)
+    local player = game:GetService("Players").LocalPlayer
+    if player and player:FindFirstChild("PlayerGui") then
+        local eggGui = player.PlayerGui:FindFirstChild("EggHatching")
+        if eggGui then
+            eggGui.Enabled = not state
+        end
+    end
+end)
